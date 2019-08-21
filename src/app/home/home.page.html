@@ -1,14 +1,35 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Ionic Blank
+     Google Map
     </ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
-  </div>
+<ion-content padding no-bounce>
+    <div id="map_canvas"></div>
 </ion-content>
+
+<ion-bottom-drawer [(state)]="drawerState" [minimumHeight]="200" [dockedHeight]="200"
+      [shouldBounce]="shouldBounce" [distanceTop]="distanceTop">
+        <div style="text-align:center;">
+            <button style="height: 30px;width: 70px;">Drag Me</button>
+        </div>
+        <div class="drawer-content" style='height:100%'>
+            <div class='drawerActuator' (touchstart)='enableDashScroll()' (touchend)='disableDashScroll()'> 
+            </div>
+            <div scrollY="true" id="myScrollDiv">
+                <ion-list>
+                    <ion-item *ngFor="let data of sampleData;let i= index;" (click)="onItemClick(i)">
+                        <ion-thumbnail slot="start">
+                            <img src="../../assets/icon/download.svg">
+                        </ion-thumbnail>
+                        <ion-label>
+                            <h3>{{data.dealerName}}</h3>
+                            <p>{{data.serviceOffer}}</p>
+                            <p>{{data.address}}</p>
+                        </ion-label>
+                    </ion-item>
+                </ion-list>
+          </div>
+      </div>
+</ion-bottom-drawer>

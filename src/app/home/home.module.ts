@@ -5,12 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { HomePage } from './home.page';
+import { IonBottomDrawerModule } from 'ion-bottom-drawer';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    IonBottomDrawerModule,
     RouterModule.forChild([
       {
         path: '',
