@@ -19,17 +19,17 @@
             </div>
             <div scrollY="true" id="myScrollDiv">
                 <ion-list>
-                    <ion-item *ngFor="let data of sampleData;let i= index;" (click)="onItemClick(i)">
+                    <ion-item *ngFor="let data of sampleData;let i= index;">
                         <ion-thumbnail slot="start">
                             <img src="../../assets/icon/download.svg">
                         </ion-thumbnail>
                         <ion-label>
-                            <h3>{{data.dealerName}}</h3>
+                            <h3>{{data.name}}</h3>
                             <p>{{data.serviceOffer}}</p>
                             <p>{{data.address}}</p>
                         </ion-label>
                     </ion-item>
-                </ion-list>
+            </ion-list>
           </div>
       </div>
 </ion-bottom-drawer>

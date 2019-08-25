@@ -1,15 +1,16 @@
-import { AfterContentInit, Component, OnInit, ViewChild} from '@angular/core';
-import { ToastController,Platform } from '@ionic/angular';
-import { GoogleMap,GoogleMapsEvent,Marker,GoogleMaps,GoogleMapsAnimation,MyLocation, MarkerOptions} from '@ionic-native/google-maps';
+import { AfterViewInit, Component, OnInit, ViewChild,Renderer2,ElementRef} from '@angular/core';
+import { ToastController,Platform,IonContent, IonList } from '@ionic/angular';
+import { GoogleMap,GoogleMapsEvent,Marker,GoogleMaps,GoogleMapsAnimation,MyLocation, MarkerOptions,BaseArrayClass,ILatLng} from '@ionic-native/google-maps';
 import { DrawerState } from 'ion-bottom-drawer';
 import { data } from '../common/data';
+import { NumberObserverService } from '../service/number-observer.service'
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit,AfterViewInit {
   map: GoogleMap;
   address:string;
   shouldBounce = true;
@@ -21,15 +22,34 @@ export class HomePage implements OnInit {
   minimumHeight = 0;
   latlong : any;
   sampleData:any;
+  scrollAmount:any;
+  value = 0;
   constructor(
       public toastCtrl: ToastController,
-      private platform: Platform) {
+      private platform: Platform,
+      private rendered: Renderer2,
+      private numberObserver : NumberObserverService) {
         this.sampleData = data;
   }
 
   ngOnInit() {
       this.platform.ready();
       this.loadMap();
+  }
+
+  ngAfterViewInit(){
+      window.addEventListener('scroll',this.onScroll,true)
+  }
+  
+  onScroll = (event) => {
+    const number = event.srcElement.scrollTop;
+    const itemHeight = 55;
+    let rowsInHeight = Math.floor(number/itemHeight);
+    if(rowsInHeight != this.value){
+        let activeElement = this.sampleData[rowsInHeight];
+        this.onItemClick(activeElement);
+        this.value = rowsInHeight;
+    }
   }
 
   loadMap() {
@@ -43,8 +63,44 @@ export class HomePage implements OnInit {
       //   tilt: 30
       // }
     });
-    this.goToMyLocation();
+    //this.goToMyLocation();
+    this.showMarkers();
   }
+
+  showMarkers(){
+    this.map.animateCamera({
+      target: this.sampleData[0].position,
+      zoom: 17,
+      duration: 5000
+    });
+
+    this.sampleData.forEach(element => {
+        //add a marker
+      let marker: Marker = this.map.addMarkerSync({
+        title: 'I can locate you',
+        snippet: 'This is awesome!',
+        position: element.position,
+        animation: GoogleMapsAnimation.BOUNCE
+      });
+
+      //show the infoWindow
+      marker.showInfoWindow();
+      this.onItemClick(this.sampleData[0]);
+      //If clicked it, display the alert
+      marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(() => {
+        this.showToast('clicked!');
+      });
+
+      this.map.on(GoogleMapsEvent.MAP_READY).subscribe(
+        (data) => {
+            console.log("Click MAP",data);
+        }
+      );
+    });
+
+  }
+
+
 
 
   goToMyLocation(){
@@ -57,7 +113,7 @@ export class HomePage implements OnInit {
       // Move the map camera to the location with animation
       this.map.animateCamera({
         target: location.latLng,
-        zoom: 17,
+        zoom: 1,
         duration: 5000
       });
       
@@ -98,23 +154,20 @@ export class HomePage implements OnInit {
       toast.present();
   }
 
-  onItemClick(index){
-      if(index == 0){
-            let options: MarkerOptions = {
-              styles: {
-                'text-align': 'center',
-                'font-style': 'italic',
-                'font-weight': '600',
-                'color': 'red'
-              },
-              position : this.latlong,
-              title: 'Activated!!!',
-              visible : true
-          }
-          this.map.addMarker(options).then((marker: Marker) => {
-              marker.showInfoWindow();
-          });
+  onItemClick(activeElement){
+      let options: MarkerOptions = {
+          styles: {
+              'text-align': 'center',
+              'font-style': 'italic',
+              'font-weight': '600',
+              'color': 'red'
+          },
+          position : activeElement.position,
+          title: 'Activated!!!',
+          visible : true
       }
-      
+      this.map.addMarker(options).then((marker: Marker) => {
+          marker.showInfoWindow();
+      });
   }
 }
